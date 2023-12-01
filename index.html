@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<!-- saved from url=(0034)https://sincoerp.com/S5/fasecolda/ -->
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Precios fasecolda</title>
+</head>
+<body data-new-gr-c-s-check-loaded="14.1143.0" data-gr-ext-installed="">
+    Valor Bearer: <input type="text" id="bearer" value="bearer f69lKiks9jKQuSOFx2ka4By6bZxTobby1p5esBmFy4I8U3kGWVv3FKSL7iRi5KTm6mBmoUNxUFPDW5bVX4RVZbCUnzV6SlvI72P9miyOh8cD7WtonrQE33SgxQGglLzCLdQv_yVZp6fpDphyU6TCkEOYY40-QPnwHwap7D37dYn-y4Wmo6nQ132Qe-KXDuIQ1Jj5ZBTZsLw0SqqE6uxamYS-ZiEX8p-5tQuKw4PRnNIF0GqlS_P3UNBUEcgcF6mbP9sJm2I7ntKdNID2PLtWXA"><br>
+    Códigos: <textarea id="ids" value="03203018"></textarea><br><br>
+    <button type="button" onclick="consultar()">Consultar</button><br><br>
+
+    <table>
+        <!--<thead>
+            <tr>
+                <th>Código</th>
+                <th>Año</th>
+                <th>Valor</th>
+            </tr>
+        </thead>-->
+        <tbody id="table">
+
+        </tbody>
+    </table>
+
+    <script>
+
+    var i, codigosOriginales, result;
+    var table = document.getElementById('table');
+
+    var ejecutar = function(bearer){
+        return function (codigos, fn) {
+            window['http_' + i] = new XMLHttpRequest();
+            window['http_' + i].open('GET', 'https://guiadevalores.fasecolda.com/apifasecolda/api/listacodigosid/consultabycodigo/' + codigos.map(x => x.Codigo).join(','), true);
+
+            window['http_' + i].setRequestHeader('Content-type', 'application/json; charset=utf-8');
+            window['http_' + i].setRequestHeader('Authorization', bearer);
+            window['http_' + i].onreadystatechange = function () {
+                if (this.readyState == 4 && this.status == 200) {
+                    JSON.parse(this.responseText)
+                        .forEach(x => 
+                            codigosOriginales
+                                .filter(co => co.Codigo == x.homoloCodigo || co.Codigo == x.codigo)
+                                .forEach(co => {
+                                    var _modelo = x.valorModelo.find(v => (+v.modelo) == co.Anio);
+
+                                    if (_modelo)
+                                        co.Valor = _modelo.valor * 1000;
+                                })
+                        );
+                    fn();
+                }
+            };
+            window['http_' + i].send();
+        }
+    }
+
+    var consultar = function(){
+        var bearer = document.getElementById('bearer').value;
+        var codigos = document.getElementById('ids').value.split('\n').filter(x => x !== '').map(x => x.split(' ').join('')).map(x => {
+            var s = x.split(':');
+            return {
+                Codigo: s[0].replace(/[^0-9]/ig, ''),
+                Anio: +s[1],
+                Valor: 'No encontrado en fasecolda'
+            }
+        });
+        codigosOriginales = Array.from(codigos, v => v);
+        result = [];
+        i = 0;
+        var exec = ejecutar(bearer);
+
+        var porEjecutar = [];
+
+        while(codigos.length > 0){
+            porEjecutar.push(codigos.splice(0, 20));
+        }
+        var counter = 0;
+        porEjecutar.forEach(subCodigos =>{
+            exec(subCodigos, function() {
+                counter++;
+                if (counter == porEjecutar.length)
+                    crearTabla(codigosOriginales);
+            });
+            i++;
+        });
+    }
+    
+    var crearTabla = function(data){
+        table.innerHTML = '';
+
+        data.forEach(d => {
+            var tr = document.createElement('tr');
+            var td = document.createElement('td');
+            td.innerHTML = d.Codigo;
+            tr.appendChild(td);
+            td = document.createElement('td');
+            td.innerHTML = d.Anio;
+            tr.appendChild(td);
+            td = document.createElement('td');
+            td.innerHTML = d.Valor + '\n';
+            tr.appendChild(td);
+            table.appendChild(tr);
+        });
+    }
+    
+    
+    </script>
+
+</body><grammarly-desktop-integration data-grammarly-shadow-root="true"><template shadowrootmode="open"><style>
+      div.grammarly-desktop-integration {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border: 0;
+        -moz-user-select: none;
+        -webkit-user-select: none;
+        -ms-user-select:none;
+        user-select:none;
+      }
+
+      div.grammarly-desktop-integration:before {
+        content: attr(data-content);
+      }
+    </style><div aria-label="grammarly-integration" role="group" tabindex="-1" class="grammarly-desktop-integration" data-content="{&quot;mode&quot;:&quot;full&quot;,&quot;isActive&quot;:true,&quot;isUserDisabled&quot;:false}"></div></template></grammarly-desktop-integration></html>
